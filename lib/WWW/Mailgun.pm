@@ -151,9 +151,9 @@ sub _get_route {
     if (ref $path eq 'ARRAY'){
         my @clean = grep {defined} @$path;
         unshift @clean, $self->{domain}
-            unless $clean[-1] |M| @IGNORE_DOMAIN;
+            unless $clean[-1] |M| \@IGNORE_DOMAIN;
         $path = join('/',@clean);
-    } elsif (!($path |M| @IGNORE_DOMAIN)) {
+    } elsif (!($path |M| \@IGNORE_DOMAIN)) {
         $path = $self->{domain} . '/' . $path
     }
     return $self->{url} . $path;
@@ -198,11 +198,11 @@ sub AUTOLOAD { ## Handle generic list of requests.
     my @ObjParts = split(/\:\:/, $AUTOLOAD);
     my $method = pop(@ObjParts);
     return if $method eq 'DESTROY'; ## Ignore DESTROY.
-    unless ($method |M| @ALL_METHODS) {
+    unless ($method |M| \@ALL_METHODS) {
         die("Not a valid method, \"$method\".");
     }
     my $mode = 'get';
-    $mode = 'post' if $method |M| @POST_METHODS;
+    $mode = 'post' if $method |M| \@POST_METHODS;
     my $r = $self->{$mode}->($self, $method, @_);
     _handle_response($r);
     return from_json($r->decoded_content);
